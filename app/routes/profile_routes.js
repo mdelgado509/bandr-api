@@ -18,7 +18,7 @@ const requireOwnership = customErrors.requireOwnership
 
 // this is middleware that will remove blank fields from `req.body`, e.g.
 // { example: { title: '', text: 'foo' } } -> { example: { text: 'foo' } }
-// const removeBlanks = require('../../lib/remove_blank_fields')
+const removeBlanks = require('../../lib/remove_blank_fields')
 // passing this as a second argument to `router.<verb>` will make it
 // so that a token MUST be passed for that route to be available
 // it will also set `req.user`
@@ -55,12 +55,11 @@ router.get('/profile', requireToken, (req, res, next) => {
   Profile.find({ owner: id })
     .then(profiles => {
       // `profiles` will be an array of Mongoose documents
-      // we want to convert each one to a POJO, so we use `.map` to
-      // apply `.toObject` to each one
-      return profiles.map(profile => profile.toObject())
+      // of length one containing the user profile
+      return profiles[0]
     })
     // respond with status 200 and JSON on the profiles
-    .then(profiles => res.status(200).json({ profiles: profiles }))
+    .then(profile => res.status(200).json({ profile: profile }))
     // if an error occurs, pass it to the handler
     .catch(next)
 })
@@ -78,8 +77,33 @@ router.get('/profiles/:id', requireToken, (req, res, next) => {
     .catch(next)
 })
 
+// UPDATE
+// PATCH /profile/update
+router.patch('/profile/update', requireToken, removeBlanks, (req, res, next) => {
+  // if the client attempts to change the `owner` property by including a new
+  // owner, prevent that by deleting that key/value pair
+  delete req.body.profile.owner
+  // if the client attempts to change the `band` property by including a new
+  // owner, prevent that by deleting that key/value pair
+  delete req.body.profile.band
+  // set `id` variable to req user id
+  const id = req.user.id
+  // find current users profile
+  Profile.find({ owner: id })
+    .then(profiles => {
+      // note profile is an array of length 1
+      const profile = profiles[0]
+      // pass the result of Mongoose's `.update` to the next `.then`
+      return profile.update(req.body.profile)
+    })
+    // if that succeeded, return 204 and no JSON
+    .then(() => res.sendStatus(204))
+    // if an error occurs, pass it to the handler
+    .catch(next)
+})
+
 // CREATE
-// POST /profiles
+// POST /
 router.post('/profiles', requireToken, (req, res, next) => {
   // set owner of new profile in request body to be current user
   req.body.profile.owner = req.user.id
