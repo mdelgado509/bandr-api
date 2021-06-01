@@ -65,7 +65,18 @@ router.get('/profile', requireToken, (req, res, next) => {
     .catch(next)
 })
 
-
+// SHOW
+// GET /profiles/60b685ef66b2ada322933563
+router.get('/profiles/:id', requireToken, (req, res, next) => {
+  // req params id will be based on the `:id` in the route
+  Profile.findById(req.params.id)
+    // handle 404 if not found
+    .then(handle404)
+    // if `findById` succeeds, respond with 200 ok and `profile` JSON
+    .then(profile => res.status(200).json({ profile: profile.toObject() }))
+    // if an error occurs, pass it to the handler
+    .catch(next)
+})
 
 // CREATE
 // POST /profiles
