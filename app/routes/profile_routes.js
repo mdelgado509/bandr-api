@@ -119,18 +119,18 @@ router.post('/profiles', requireToken, (req, res, next) => {
 })
 
 // DESTROY
-// DELETE /profiles/60b67f2ad27b9da0c07e7008
-router.delete('/profiles/:id', requireToken, (req, res, next) => {
+// DELETE /profile/delete
+router.delete('/profile/destroy', requireToken, (req, res, next) => {
   // Find by id
-  Profile.findById(req.params.id)
-    // handle404 if not found
-    .then(handle404)
+  Profile.find({ owner: req.user.id })
     // if found
-    .then(profile => {
+    .then(profiles => {
+      // returns array of length 1 containing user profile
+      const profile = profiles[0]
       // throw error if current user doesn't own the `profile`
       requireOwnership(req, profile)
       // delete `profile` if error didn't throw
-      profile.deleteOne()
+      profile.delete()
     })
     // send back 204 no content if the deletion succeeded
     .then(() => res.sendStatus(204))
