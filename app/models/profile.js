@@ -7,7 +7,8 @@ const profileSchema = new mongoose.Schema({
   owner: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
-    required: true
+    required: true,
+    unique: true
   },
   // type (Band or Planner) (String OR isABand - boolean?)
   band: {
