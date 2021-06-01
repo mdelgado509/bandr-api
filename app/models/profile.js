@@ -10,7 +10,7 @@ const profileSchema = new mongoose.Schema({
     required: true
   },
   // type (Band or Planner) (String OR isABand - boolean?)
-  isABand: {
+  band: {
     type: Boolean,
     required: true
   },
@@ -20,7 +20,7 @@ const profileSchema = new mongoose.Schema({
     required: true
   },
   // description (String)
-  description: {
+  text: {
     type: String,
     required: true
   }
