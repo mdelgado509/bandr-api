@@ -5,10 +5,15 @@ const mongoose = require('mongoose')
 const matchSchema = new mongoose.Schema({
   // profileOne
   profileOne: {
-    // ref to User
+    // // ref to User
+    // ownerId: {
+    //   type: mongoose.Schema.Types.ObjectId,
+    //   ref: 'User'
+    // },
+    // ref to Profile
     owner: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'User'
+      ref: 'Profile'
     },
     // accepted (boolean)
     accepted: {
@@ -17,10 +22,15 @@ const matchSchema = new mongoose.Schema({
   },
   // profileTwo
   profileTwo: {
-    // ref to User
+    // // ref to User
+    // ownerId: {
+    //   type: mongoose.Schema.Types.ObjectId,
+    //   ref: 'User'
+    // },
+    // ref to Profile
     owner: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'User'
+      ref: 'Profile'
     },
     // accepted (boolean)
     accepted: {

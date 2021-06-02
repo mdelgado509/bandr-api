@@ -5,6 +5,8 @@ const passport = require('passport')
 
 // pull in Mongoose model for profiles
 const Profile = require('../models/profile')
+// pull in Mongoose model for user
+const User = require('../models/user')
 
 // this is a collection of methods that help us detect situations when we need
 // to throw a custom error
@@ -103,8 +105,8 @@ router.patch('/profile/update', requireToken, removeBlanks, (req, res, next) => 
 })
 
 // CREATE
-// POST /
-router.post('/profiles', requireToken, (req, res, next) => {
+// POST /profiles
+router.post('/profile/create', requireToken, (req, res, next) => {
   // set owner of new profile in request body to be current user
   req.body.profile.owner = req.user.id
 
@@ -112,6 +114,12 @@ router.post('/profiles', requireToken, (req, res, next) => {
   Profile.create(req.body.profile)
     // respond to succesful `create` with status 201 and JSON of new "profile"
     .then(profile => {
+      // update the user model with the profile id
+      User.update({ _id: profile.owner }, {
+        profileId: profile._id
+      })
+        .then(() => console.log('success'))
+        .catch(() => console.log('fail'))
       res.status(201).json({ profile: profile.toObject() })
     })
     // if an error occurs, pass to error handler
