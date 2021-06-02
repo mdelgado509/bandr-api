@@ -1,11 +1,11 @@
-#!/bin/sh
+#!/bin/bash
 
 API="http://localhost:4741"
-URL_PATH="/profiles/${ID}/match/create"
+URL_PATH="/profiles/${ID}/match"
 
 curl "${API}${URL_PATH}" \
   --include \
-  --request POST \
+  --request PATCH \
   --header "Content-Type: application/json" \
   --header "Authorization: Bearer ${TOKEN}" \
 

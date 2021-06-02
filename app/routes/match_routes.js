@@ -29,7 +29,7 @@ const router = express.Router()
 
 // CREATE
 // POST /profiles/:id/match
-router.post('/profiles/:id/match', requireToken, (req, res, next) => {
+router.post('/profiles/:id/match/create', requireToken, (req, res, next) => {
   // set up request body POJO
   req.body.match = {
     // set profileOne.owner to req users profileId and profileOne.accepted to true
@@ -55,7 +55,35 @@ router.post('/profiles/:id/match', requireToken, (req, res, next) => {
 })
 
 // UPDATE (2nd user match)
-// PATCH /profiles/:userId/match/:matchId
+// PATCH /profiles/:id/match
+router.patch('/profiles/:id/match', requireToken, (req, res, next) => {
+  // find the match with profileOne id = req params id
+  Match.find({ 'profileOne.owner': req.params.id }, { 'profileTwo.owner': req.user.profileId })
+    // if found update profileTwo.accepted = true and isMatch = true
+    .then(matches => {
+      // note that matches is an array of length 1
+      const match = matches[0]
+      // set profileTwo.accepted to true
+      match.profileTwo.accepted = true
+      // set isMatch to true
+      match.isMatch = true
+      // pass the result of Mongoose's `.update` to the next `.then`
+      return match.save()
+    })
+    // if that succeeded, return 200 and JSON of the `match`
+    // ***** what's the best return code here???? *******
+    .then(match => res.status(200).json({ match: match.toObject() }))
+    // if an error occurs, pass it to the handler
+    .catch(next)
+})
+
+// INDEX (isMatch is true)
+// GET /profile/matches
+router.get('/profile/matches', requireToken, (req, res, next) => {
+  // set `profileId` variable to req user profileId
+  Match.find({ $or: [{ 'profileOne.owner': req.user.profileId }, { 'profileTwo.owner': req.user.profileId }] })
+    .then(match => console.log(match))
+})
 
 // export router
 module.exports = router
