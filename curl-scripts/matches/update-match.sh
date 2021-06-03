@@ -1,7 +1,7 @@
 #!/bin/bash
 
 API="http://localhost:4741"
-URL_PATH="/profiles/${ID}/match/update"
+URL_PATH="/profile/matches/${ID}/update"
 
 curl "${API}${URL_PATH}" \
   --include \

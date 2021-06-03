@@ -131,8 +131,8 @@ router.get('/profile/matches/:id', (req, res, next) => {
 })
 
 // UPDATE (isMatch = false)
-// PATCH /profiles/:id/match/update
-router.patch('/profiles/:id/match/update', requireToken, (req, res, next) => {
+// PATCH /profile/match/:id/update
+router.patch('/profile/matches/:id/update', requireToken, (req, res, next) => {
   // req params id will be based on the `:id` in the route
   Match.findById(req.params.id)
     // handle 404 if not found
@@ -140,7 +140,7 @@ router.patch('/profiles/:id/match/update', requireToken, (req, res, next) => {
     // if found
     .then(match => {
       // turn isMatch to false and save match
-      match.isMatch = false
+      match.isMatch = true
       // pass the result of Mongoose's `.update` to the next `.then`
       return match.save()
     })
@@ -150,7 +150,31 @@ router.patch('/profiles/:id/match/update', requireToken, (req, res, next) => {
     .catch(next)
 })
 
-// DELETE
+// DESTROY
+// DELETE /profile/matches/:id/destroy
+// unable to include requireToken passport for user.profileId
+// unable to verify ownership with custom error logic
+router.delete('/profile/matches/:id/destroy', (req, res, next) => {
+  // req params id will be based on the `:id` in the route
+  Match.findById(req.params.id)
+    // handle 404 if not found
+    .then(handle404)
+    // if found
+    .then(match => {
+      // // ensure user profile is owner of profileOne or profileTwo
+      // // (profileOne.owner === req.user.profileId)
+      // if ((match.profileOne !== req.user.profileId) && (match.profileTwo !== req.user.profileId)) {
+      //   // throw OwnershipError if not
+      //   throw customErrors.OwnershipError
+      // }
+      // delete `match` if error didn't throw
+      match.delete()
+    })
+    // send back 204 no content if the deletion succeeded
+    .then(() => res.sendStatus(204))
+    // if error occurs, pass it to the handler
+    .catch(next)
+})
 
 // export router
 module.exports = router
