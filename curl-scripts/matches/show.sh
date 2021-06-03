@@ -6,6 +6,6 @@ URL_PATH="/profile/matches"
 curl "${API}${URL_PATH}/${ID}" \
   --include \
   --request GET \
-  --header "Authorization: Bear ${TOKEN}"
+  --header "Authorization: Bearer ${TOKEN}"
 
 echo

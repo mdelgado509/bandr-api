@@ -14,11 +14,11 @@ const customErrors = require('../../lib/custom_errors')
 const handle404 = customErrors.handle404
 // we'll use this function to send 401 when a user tries to modify a resource
 // that's owned by someone else
-const requireOwnership = customErrors.requireOwnership
+// const requireOwnership = customErrors.requireOwnership
 
 // this is middleware that will remove blank fields from `req.body`, e.g.
 // { example: { title: '', text: 'foo' } } -> { example: { text: 'foo' } }
-const removeBlanks = require('../../lib/remove_blank_fields')
+// const removeBlanks = require('../../lib/remove_blank_fields')
 // passing this as a second argument to `router.<verb>` will make it
 // so that a token MUST be passed for that route to be available
 // it will also set `req.user`
@@ -107,7 +107,7 @@ router.get('/profile/matches', requireToken, (req, res, next) => {
 // SHOW
 // GET /profile/matches/:id
 // show match not working with requireToken
-router.get('/profile/matches/:id', (req, res, next) => {
+router.get('/profile/matches/:id', requireToken, (req, res, next) => {
   // req params id will be based on the `:id` in the route
   Match.findById(req.params.id)
     // populate profileOne owner
@@ -150,31 +150,40 @@ router.patch('/profile/matches/:id/update', requireToken, (req, res, next) => {
     .catch(next)
 })
 
-// DESTROY
-// DELETE /profile/matches/:id/destroy
-// unable to include requireToken passport for user.profileId
-// unable to verify ownership with custom error logic
-router.delete('/profile/matches/:id/destroy', (req, res, next) => {
-  // req params id will be based on the `:id` in the route
-  Match.findById(req.params.id)
-    // handle 404 if not found
-    .then(handle404)
-    // if found
-    .then(match => {
-      // // ensure user profile is owner of profileOne or profileTwo
-      // // (profileOne.owner === req.user.profileId)
-      // if ((match.profileOne !== req.user.profileId) && (match.profileTwo !== req.user.profileId)) {
-      //   // throw OwnershipError if not
-      //   throw customErrors.OwnershipError
-      // }
-      // delete `match` if error didn't throw
-      match.delete()
-    })
-    // send back 204 no content if the deletion succeeded
-    .then(() => res.sendStatus(204))
-    // if error occurs, pass it to the handler
-    .catch(next)
-})
+// // DESTROY
+// // DELETE /profile/matches/:id/destroy
+// // unable to include requireToken passport for user.profileId
+// // unable to verify ownership with custom error logic
+// router.delete('/matches/:id', requireToken, (req, res, next) => {
+//   // req params id will be based on the `:id` in the route
+//   Match.findById(req.params.id)
+//     // handle 404 if not found
+//     .then(handle404)
+//     // if found
+//     .then(match => {
+//       console.log('this is the params id', req.params.id)
+//       console.log('this is the match', match)
+//       console.log('this is req.user', req.user)
+//       console.log('this is match.profileOne', match.profileOne)
+//       console.log('this is match.profileTwo', match.profileTwo)
+//       // ensure user profile is owner of profileOne or profileTwo
+//       // (profileOne.owner === req.user.profileId)
+//       if (match.profileOne.owner !== req.user.profileId) {
+//         // throw OwnershipError if not
+//         throw customErrors.OwnershipError
+//       } else if (match.profileTwo.owner !== req.user.profileId) {
+//         // throw OwnershipError if not
+//         throw customErrors.OwnershipError
+//       } else {
+//         // delete `match` if error didn't throw
+//         match.delete()
+//       }
+//     })
+//     // send back 204 no content if the deletion succeeded
+//     .then(() => res.sendStatus(204))
+//     // if error occurs, pass it to the handler
+//     .catch(next)
+// })
 
 // export router
 module.exports = router

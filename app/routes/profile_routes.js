@@ -143,8 +143,15 @@ router.delete('/profile/destroy', requireToken, (req, res, next) => {
       const profile = profiles[0]
       // throw error if current user doesn't own the `profile`
       requireOwnership(req, profile)
+      // update the user model with the profile id
+      User.update({ _id: profile.owner }, {
+        profileId: null
+      })
+        .then(() => console.log('success'))
+        .catch(() => console.log('fail'))
       // delete `profile` if error didn't throw
       profile.delete()
+      // update user ***
     })
     // send back 204 no content if the deletion succeeded
     .then(() => res.sendStatus(204))

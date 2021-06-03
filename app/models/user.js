@@ -12,7 +12,8 @@ const userSchema = new mongoose.Schema({
   },
   profileId: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'Profile'
+    ref: 'Profile',
+    default: null
   },
   token: String
 }, {
