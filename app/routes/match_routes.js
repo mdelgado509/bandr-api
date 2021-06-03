@@ -81,7 +81,13 @@ router.patch('/profiles/:id/match', requireToken, (req, res, next) => {
 // GET /profile/matches
 router.get('/profile/matches', requireToken, (req, res, next) => {
   // set `profileId` variable to req user profileId
-  Match.find({ $or: [{ 'profileOne.owner': req.user.profileId }, { 'profileTwo.owner': req.user.profileId }] })
+  Match.find({ $and: [
+    { isMatch: true },
+    { $or: [
+      { 'profileOne.owner': req.user.profileId },
+      { 'profileTwo.owner': req.user.profileId }
+    ] }
+  ] })
     .then(match => console.log(match))
 })
 
