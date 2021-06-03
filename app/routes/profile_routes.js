@@ -36,6 +36,8 @@ router.get('/profiles', requireToken, (req, res, next) => {
   const id = req.user.id
   // find all profiles that aren't the current users profile
   Profile.find({ owner: { $ne: id } })
+    // populate owner
+    .populate('owner')
     .then(profiles => {
       // `profiles` will be an array of Mongoose documents
       // we want to convert each one to a POJO, so we use `.map` to
@@ -55,6 +57,8 @@ router.get('/profile', requireToken, (req, res, next) => {
   const id = req.user.id
   // find profile that belongs to current user
   Profile.find({ owner: id })
+    // populate owner
+    .populate('owner')
     .then(profiles => {
       // `profiles` will be an array of Mongoose documents
       // of length one containing the user profile
@@ -73,6 +77,8 @@ router.get('/profiles/:id', requireToken, (req, res, next) => {
   Profile.findById(req.params.id)
     // handle 404 if not found
     .then(handle404)
+    // populate owner
+    .populate('owner')
     // if `findById` succeeds, respond with 200 ok and `profile` JSON
     .then(profile => res.status(200).json({ profile: profile.toObject() }))
     // if an error occurs, pass it to the handler

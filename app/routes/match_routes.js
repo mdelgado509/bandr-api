@@ -88,8 +88,28 @@ router.get('/profile/matches', requireToken, (req, res, next) => {
       { 'profileTwo.owner': req.user.profileId }
     ] }
   ] })
-    .then(match => console.log(match))
+    .populate('profileOne.owner')
+    .populate('profileTwo.owner')
+    .then(matches => {
+    // `matches` will be an array of Mongoose documents
+    // we want to convert each one to a POJO, so we use `.map` to
+    // apply `.toObject` to each one
+      return matches.map(match => match.toObject())
+    })
+    // respond with status 200 and JSON of the matches
+    .then(matches => res.status(200).json({ matches: matches }))
+    // if an error occurs, pass it to the handler
+    .catch(next)
 })
+
+// SHOW
+// GET /profile/matches/:id
+  // req params id will be based on the `:id` in the route
+    // handle 404 if not found
+    // populate profileOne owner
+    // populate profileTwo owner
+    // if `findById` succeeds, respond with 200 ok and `match` JSON
+    // if an error occurs, pass it to the handler
 
 // export router
 module.exports = router
