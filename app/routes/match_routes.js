@@ -59,6 +59,8 @@ router.post('/profiles/:id/match/create', requireToken, (req, res, next) => {
 router.patch('/profiles/:id/match', requireToken, (req, res, next) => {
   // find the match with profileOne id = req params id
   Match.find({ 'profileOne.owner': req.params.id }, { 'profileTwo.owner': req.user.profileId })
+    .populate('profileOne.owner')
+    .populate('profileTwo.owner')
     // if found update profileTwo.accepted = true and isMatch = true
     .then(matches => {
       // note that matches is an array of length 1
@@ -104,12 +106,46 @@ router.get('/profile/matches', requireToken, (req, res, next) => {
 
 // SHOW
 // GET /profile/matches/:id
+// show match not working with requireToken
+router.get('/profile/matches/:id', (req, res, next) => {
+  console.log(12345)
   // req params id will be based on the `:id` in the route
-    // handle 404 if not found
+  Match.findById(req.params.id)
     // populate profileOne owner
+    .populate('profileOne.owner')
     // populate profileTwo owner
+    .populate('profileTwo.owner')
+    // handle 404 if not found
+    .then(handle404)
     // if `findById` succeeds, respond with 200 ok and `match` JSON
+    .then(match => {
+      res.status(200).json({ match: match.toObject() })
+    })
     // if an error occurs, pass it to the handler
+    .catch(next)
+})
+
+// UPDATE (isMatch = false)
+// PATCH /profiles/:id/match/update
+router.patch('/profiles/:id/match/update', requireToken, (req, res, next) => {
+  // req params id will be based on the `:id` in the route
+  Match.findById(req.params.id)
+    // handle 404 if not found
+    .then(handle404)
+    // if found
+    .then(match => {
+      // turn isMatch to false and save match
+      match.isMatch = false
+      // pass the result of Mongoose's `.update` to the next `.then`
+      return match.save()
+    })
+    // if that succeeded, return 204 and no content
+    .then(match => res.sendStatus(204))
+    // if an error occurs, pass it to the handler
+    .catch(next)
+})
+
+// DELETE
 
 // export router
 module.exports = router
