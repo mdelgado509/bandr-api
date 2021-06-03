@@ -108,7 +108,6 @@ router.get('/profile/matches', requireToken, (req, res, next) => {
 // GET /profile/matches/:id
 // show match not working with requireToken
 router.get('/profile/matches/:id', (req, res, next) => {
-  console.log(12345)
   // req params id will be based on the `:id` in the route
   Match.findById(req.params.id)
     // populate profileOne owner
@@ -119,7 +118,13 @@ router.get('/profile/matches/:id', (req, res, next) => {
     .then(handle404)
     // if `findById` succeeds, respond with 200 ok and `match` JSON
     .then(match => {
-      res.status(200).json({ match: match.toObject() })
+      // if it is a match
+      if (match.isMatch) {
+        res.status(200).json({ match: match.toObject() })
+      } else {
+        // throw error if not a match
+        throw customErrors.DocumentNotFoundError
+      }
     })
     // if an error occurs, pass it to the handler
     .catch(next)
