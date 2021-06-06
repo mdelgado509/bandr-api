@@ -31,14 +31,16 @@ const router = express.Router()
 
 // INDEX (owner = !user)
 // GET /profiles
-router.get('/profiles', requireToken, (req, res, next) => {
+router.get('/match/:type', requireToken, (req, res, next) => {
   // set `id` variable to req user id
-  const id = req.user.id
+  const type = req.params.type
+  const oppositeType = type.toLowerCase() === 'band' ? 'planner' : 'band'
   // find all profiles that aren't the current users profile
-  Profile.find({ owner: { $ne: id } })
+  Profile.find({ type: oppositeType })
     // populate owner
     .populate('owner')
     .then(profiles => {
+      console.log(profiles)
       // `profiles` will be an array of Mongoose documents
       // we want to convert each one to a POJO, so we use `.map` to
       // apply `.toObject` to each one
