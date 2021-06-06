@@ -91,9 +91,9 @@ router.patch('/profile/update', requireToken, removeBlanks, (req, res, next) => 
   // if the client attempts to change the `owner` property by including a new
   // owner, prevent that by deleting that key/value pair
   delete req.body.profile.owner
-  // if the client attempts to change the `band` property by including a new
+  // if the client attempts to change the `type` property by including a new
   // owner, prevent that by deleting that key/value pair
-  delete req.body.profile.band
+  delete req.body.profile.type
   // set `id` variable to req user id
   const id = req.user.id
   // find current users profile

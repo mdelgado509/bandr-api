@@ -11,8 +11,9 @@ const profileSchema = new mongoose.Schema({
     unique: true
   },
   // type (Band or Planner) (String OR isABand - boolean?)
-  band: {
-    type: Boolean,
+  type: {
+    type: String,
+    enum: ['band', 'planner'],
     required: true
   },
   // title (String)

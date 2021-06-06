@@ -76,7 +76,30 @@ router.patch('/profiles/:id/match', requireToken, (req, res, next) => {
     // ***** what's the best return code here???? *******
     .then(match => res.status(200).json({ match: match.toObject() }))
     // if an error occurs, pass it to the handler
-    .catch(next)
+    .catch(() => {
+      // set up request body POJO
+      req.body.match = {
+        // set profileOne.owner to req users profileId and profileOne.accepted to true
+        profileOne: {
+          owner: req.user.profileId,
+          accepted: true
+        },
+        profileTwo: {
+          // set profileTwo.owner to req params id and profileOne.accepted to false
+          owner: req.params.id,
+          accepted: false
+        }
+      }
+
+      // create a match using request body
+      Match.create(req.body.match)
+        // respond to succesful `create` with status 201 and JSON of new "match"
+        .then(match => {
+          res.status(201).json({ match: match.toObject() })
+        })
+        // if an error occurs, pass to error handler
+        .catch(next)
+    })
 })
 
 // INDEX (isMatch is true)
