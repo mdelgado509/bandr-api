@@ -35,11 +35,27 @@ router.get('/match/:type', requireToken, (req, res, next) => {
   // set `id` variable to req user id
   const type = req.params.type
   const oppositeType = type.toLowerCase() === 'band' ? 'planner' : 'band'
+  // define sentMatches
+  let sentMatches
+
   // find all profiles that aren't the current users profile
   Profile.find({ type: oppositeType })
     // populate owner
     .populate('owner')
     .then(profiles => {
+      // find user
+      User.findById(req.user.id)
+        .populate('profileId')
+        .then(user => {
+          console.log(user)
+          sentMatches = user.profileId.sentMatches
+          console.log(sentMatches)
+        })
+        .catch(next)
+      profiles.filter(profile => {
+        sentMatches.includes(profile._id)
+      })
+      // console.log(profiles)
       // `profiles` will be an array of Mongoose documents
       // we want to convert each one to a POJO, so we use `.map` to
       // apply `.toObject` to each one
