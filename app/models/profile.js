@@ -25,6 +25,10 @@ const profileSchema = new mongoose.Schema({
   text: {
     type: String,
     required: true
+  },
+  sentMatches: {
+    type: Array,
+    default: []
   }
 }, { // timestamps
   timestamps: true

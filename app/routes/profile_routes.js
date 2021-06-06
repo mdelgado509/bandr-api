@@ -40,7 +40,6 @@ router.get('/match/:type', requireToken, (req, res, next) => {
     // populate owner
     .populate('owner')
     .then(profiles => {
-      console.log(profiles)
       // `profiles` will be an array of Mongoose documents
       // we want to convert each one to a POJO, so we use `.map` to
       // apply `.toObject` to each one

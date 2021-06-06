@@ -5,6 +5,8 @@ const passport = require('passport')
 
 // pull in Mongoose model for matches
 const Match = require('../models/match')
+// pull in Mongoose model for profiles
+const Profile = require('../models/profile')
 
 // this is a collection of methods that help us detect situations when we need
 // to throw a custom error
@@ -95,6 +97,15 @@ router.patch('/profiles/:id/match', requireToken, (req, res, next) => {
       Match.create(req.body.match)
         // respond to succesful `create` with status 201 and JSON of new "match"
         .then(match => {
+          // find profile by profileOne.owner
+          Profile.findById(match.profileOne.owner)
+            .then(handle404)
+            .then(profile => {
+              const profileArr = profile.sentMatches
+              profileArr.push(match.profileTwo.owner)
+              profile.sentMatches = profileArr
+              profile.save()
+            })
           res.status(201).json({ match: match.toObject() })
         })
         // if an error occurs, pass to error handler
