@@ -1,7 +1,7 @@
 #!/bin/sh
 
 API="http://localhost:4741"
-URL_PATH="/profile/matches"
+URL_PATH="/matches"
 
 curl "${API}${URL_PATH}" \
   --include \

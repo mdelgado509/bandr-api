@@ -71,6 +71,16 @@ router.patch('/profiles/:id/match', requireToken, (req, res, next) => {
       match.profileTwo.accepted = true
       // set isMatch to true
       match.isMatch = true
+
+      // add profileOne owner to acceptedMatches array
+      Profile.findById(match.profileTwo.owner)
+        .then(handle404)
+        .then(profile => {
+          const profileArr = profile.acceptedMatches
+          profileArr.push(match.profileOne.owner)
+          profile.acceptedMatches = profileArr
+          profile.save()
+        })
       // pass the result of Mongoose's `.update` to the next `.then`
       return match.save()
     })
@@ -114,8 +124,8 @@ router.patch('/profiles/:id/match', requireToken, (req, res, next) => {
 })
 
 // INDEX (isMatch is true)
-// GET /profile/matches
-router.get('/profile/matches', requireToken, (req, res, next) => {
+// GET /matches
+router.get('/matches', requireToken, (req, res, next) => {
   // set `profileId` variable to req user profileId
   Match.find({ $and: [
     { isMatch: true },

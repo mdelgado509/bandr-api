@@ -29,6 +29,10 @@ const profileSchema = new mongoose.Schema({
   sentMatches: {
     type: Array,
     default: []
+  },
+  acceptedMatches: {
+    type: Array,
+    default: []
   }
 }, { // timestamps
   timestamps: true
