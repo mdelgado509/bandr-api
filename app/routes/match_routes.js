@@ -67,20 +67,22 @@ router.patch('/profiles/:id/match', requireToken, (req, res, next) => {
     .then(matches => {
       // note that matches is an array of length 1
       const match = matches[0]
-      // set profileTwo.accepted to true
-      match.profileTwo.accepted = true
       // set isMatch to true
       match.isMatch = true
+      // set profileTwo.accepted to true
+      match.profileTwo.accepted = true
 
-      // add profileOne owner to acceptedMatches array
-      Profile.findById(match.profileTwo.owner)
-        .then(handle404)
-        .then(profile => {
-          const profileArr = profile.acceptedMatches
-          profileArr.push(match.profileOne.owner)
-          profile.acceptedMatches = profileArr
-          profile.save()
-        })
+      if (match.isMatch && match.profileTwo.accepted) {
+        // add profileOne owner to acceptedMatches array
+        Profile.findById(match.profileTwo.owner)
+          .then(handle404)
+          .then(profile => {
+            const profileArr = profile.acceptedMatches
+            profileArr.push(match.profileOne.owner)
+            profile.acceptedMatches = profileArr
+            profile.save()
+          })
+      }
       // pass the result of Mongoose's `.update` to the next `.then`
       return match.save()
     })
