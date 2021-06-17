@@ -10,7 +10,7 @@ curl "${API}${URL_PATH}" \
   --header "Authorization: Bearer ${TOKEN}" \
   --data '{
     "profile": {
-      "band": "'"${BAND}"'",
+      "type": "'"${TYPE}"'",
       "title": "'"${TITLE}"'",
       "text": "'"${TEXT}"'"
     }

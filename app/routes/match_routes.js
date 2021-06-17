@@ -78,7 +78,7 @@ router.patch('/profiles/:id/match', requireToken, (req, res, next) => {
           .then(handle404)
           .then(profile => {
             const profileArr = profile.acceptedMatches
-            profileArr.push(match.profileOne.owner)
+            profileArr.push(req.params.id)
             profile.acceptedMatches = profileArr
             profile.save()
           })
@@ -114,7 +114,7 @@ router.patch('/profiles/:id/match', requireToken, (req, res, next) => {
             .then(handle404)
             .then(profile => {
               const profileArr = profile.sentMatches
-              profileArr.push(match.profileTwo.owner)
+              profileArr.push(req.params.id)
               profile.sentMatches = profileArr
               profile.save()
             })
