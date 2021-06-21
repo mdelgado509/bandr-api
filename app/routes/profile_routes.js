@@ -7,6 +7,8 @@ const passport = require('passport')
 const Profile = require('../models/profile')
 // pull in Mongoose model for user
 const User = require('../models/user')
+// pull in Mongoose model for matches
+const Match = require('../models/match')
 
 // this is a collection of methods that help us detect situations when we need
 // to throw a custom error
@@ -144,12 +146,24 @@ router.delete('/profile/destroy', requireToken, (req, res, next) => {
       const profile = profiles[0]
       // throw error if current user doesn't own the `profile`
       requireOwnership(req, profile)
+
       // update the user model with the profile id
       User.update({ _id: profile.owner }, {
         profileId: null
       })
         .then(() => console.log('success'))
         .catch(() => console.log('fail'))
+
+      // find and delete match instances where profile.owner is profileOne or Two
+      Match.find({ $or: [
+        { 'profileOne.owner': profile._id },
+        { 'profileTwo.owner': profile._id }
+      ] })
+        .then(matches => {
+          console.log(matches)
+          matches.forEach(match => match.delete())
+        })
+        .catch(() => console.error)
       // delete `profile` if error didn't throw
       profile.delete()
       // update user ***
