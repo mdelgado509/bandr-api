@@ -60,7 +60,8 @@ router.post('/profiles/:id/match/create', requireToken, (req, res, next) => {
 // PATCH /profiles/:id/match
 router.patch('/profiles/:id/match', requireToken, (req, res, next) => {
   // find the match with profileOne id = req params id
-  Match.find({ 'profileOne.owner': req.params.id }, { 'profileTwo.owner': req.user.profileId })
+  // add $and to make sure both users are in the found match
+  Match.find({ $and: [{ 'profileOne.owner': req.params.id }, { 'profileTwo.owner': req.user.profileId }] })
     .populate('profileOne.owner')
     .populate('profileTwo.owner')
     // if found update profileTwo.accepted = true and isMatch = true

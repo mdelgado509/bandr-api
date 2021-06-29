@@ -142,18 +142,10 @@ router.delete('/profile/destroy', requireToken, (req, res, next) => {
   Profile.find({ owner: req.user.id })
     // if found
     .then(profiles => {
-      // returns array of length 1 containing user profile
-      const profile = profiles[0]
-      // throw error if current user doesn't own the `profile`
-      requireOwnership(req, profile)
-
-      // update the user model with the profile id
-      User.update({ _id: profile.owner }, {
-        profileId: null
-      })
-        .then(() => console.log('success'))
-        .catch(() => console.log('fail'))
-
+      // extract profile from array of length 1
+      return profiles[0]
+    })
+    .then(profile => {
       // find and delete match instances where profile.owner is profileOne or Two
       Match.find({ $or: [
         { 'profileOne.owner': profile._id },
@@ -164,15 +156,29 @@ router.delete('/profile/destroy', requireToken, (req, res, next) => {
           matches.forEach(match => match.delete())
         })
         .catch(() => console.error)
-      // delete `profile` if error didn't throw
+      return profile
+    })
+    .then(profile => {
+      // throw error if current user doesn't own the `profile`
+      requireOwnership(req, profile)
+
       profile.delete()
-      // update user ***
     })
     // send back 204 no content if the deletion succeeded
     .then(() => res.sendStatus(204))
     // if error occurs, pass it to the handler
     .catch(next)
 })
+
+// // update the user model with the profile id
+// User.update({ _id: profile.owner }, {
+//   profileId: null
+// })
+//   .then(() => console.log('success'))
+//   .catch(() => console.log('fail'))
+//
+
+// delete `profile` if error didn't throw
 
 // export router
 module.exports = router
